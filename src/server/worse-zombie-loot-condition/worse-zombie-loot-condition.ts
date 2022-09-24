@@ -69,7 +69,6 @@ Events.onZombidDead.addListener((zombie: IsoZombie) => {
   const itemContainer = zombie.getInventory();
   const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
   const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
-  // const itemsNone = itemContainer.getItemsFromCategory('None');
 
   if (zombie.getLastHitCount() < sandboxVars.clothingHolesValueMin) {
     const remainingHits = sandboxVars.clothingHolesValueMin - zombie.getLastHitCount();
@@ -94,9 +93,4 @@ Events.onZombidDead.addListener((zombie: IsoZombie) => {
       setCondition(item, sandboxVars.damageClothingValue);
     }
   }
-
-  // for (let i = 0; i < itemsNone.size(); i++) {
-  //   const item: InventoryItem = itemsClothing.get(i);
-  //   setCondition(item, sandboxVars.damageClothingValue);
-  // }
 });

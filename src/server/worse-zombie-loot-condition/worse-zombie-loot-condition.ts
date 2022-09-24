@@ -49,6 +49,10 @@ function setCondition(item: InventoryItem, maxCondition: number) {
 }
 
 Events.onHitZombie.addListener((zombie: IsoZombie) => {
+  if (zombie == null) {
+    return;
+  }
+
   for (let i = 0; i < sandboxVars.clothingHolesValue; i++) {
     // @ts-ignore
     zombie.addHole(null);

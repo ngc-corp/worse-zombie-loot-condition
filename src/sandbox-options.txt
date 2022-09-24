@@ -1,0 +1,37 @@
+VERSION = 1,
+
+option WorseZombieLootCondition.clothingHolesValue {
+	type = double,
+	default = 20,
+	min = 5,
+	max = 40,
+	page = Worse Zombie Loot Condition,
+	translation = ClothingHolesValue,
+}
+
+option WorseZombieLootCondition.clothingHolesValueMin {
+	type = int,
+	default = 4,
+	min = 1,
+	max = 10,
+	page = Worse Zombie Loot Condition,
+	translation = ClothingHolesValueMin,
+}
+
+option WorseZombieLootCondition.damageClothingValue {
+	type = double,
+	default = 0.5,
+	min = 0.1,
+	max = 1,
+	page = Worse Zombie Loot Condition,
+	translation = DamageClothingValue,
+}
+
+option WorseZombieLootCondition.damageWeaponValue {
+	type = double,
+	default = 0.5,
+	min = 0.1,
+	max = 1,
+	page = Worse Zombie Loot Condition,
+	translation = DamageWeaponValue,
+}

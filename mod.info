@@ -1,0 +1,5 @@
+name=Worse Zombie Loot Condition
+poster=poster.png
+description=Adds multiple holes to clothing when a zombie is hit and adds damage to attached weapons when a zombie dies
+id=worse-zombie-loot-condition
+url=https://github.com/ngc-corp/worse-zombie-loot-condition

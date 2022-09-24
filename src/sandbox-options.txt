@@ -10,7 +10,7 @@ option WorseZombieLootCondition.clothingHolesValue {
 }
 
 option WorseZombieLootCondition.clothingHolesValueMin {
-	type = int,
+	type = integer,
 	default = 4,
 	min = 1,
 	max = 10,

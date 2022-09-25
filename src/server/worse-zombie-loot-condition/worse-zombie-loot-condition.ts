@@ -31,7 +31,7 @@
  */
 
 // PipeWrench API.
-import { Clothing, InventoryItem, IsoZombie, WeaponType, ZombRand } from '@asledgehammer/pipewrench';
+import { Clothing, InventoryItem, WeaponType, ZombRand } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';

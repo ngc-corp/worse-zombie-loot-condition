@@ -31,7 +31,7 @@
  */
 
 // PipeWrench API.
-import { Clothing, InventoryItem, IsoZombie, ZombRand } from '@asledgehammer/pipewrench';
+import { Clothing, InventoryItem, IsoZombie, WeaponType, ZombRand } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';
@@ -48,7 +48,7 @@ function setCondition(item: InventoryItem, maxCondition: number) {
   }
 }
 
-Events.onHitZombie.addListener((zombie: IsoZombie) => {
+Events.onHitZombie.addListener((zombie, character, bodyPartType, handWeapon) => {
   if (zombie == null) {
     return;
   }
@@ -56,12 +56,15 @@ Events.onHitZombie.addListener((zombie: IsoZombie) => {
   for (let i = 0; i < sandboxVars.clothingHolesValue; i++) {
     // @ts-ignore
     zombie.addHole(null);
+  }
+
+  if (WeaponType.getWeaponType(character) != WeaponType.barehand) {
     // @ts-ignore
     zombie.addBlood(null, true, false, false);
   }
 });
 
-Events.onZombidDead.addListener((zombie: IsoZombie) => {
+Events.onZombidDead.addListener((zombie) => {
   if (zombie == null) {
     return;
   }
@@ -76,9 +79,10 @@ Events.onZombidDead.addListener((zombie: IsoZombie) => {
     for (let i = 0; i < sandboxVars.clothingHolesValue * remainingHits; i++) {
       // @ts-ignore
       zombie.addHole(null);
-      // @ts-ignore
-      zombie.addBlood(null, true, false, false);
     }
+
+    // @ts-ignore
+    zombie.addBlood(null, true, false, false);
   }
 
   for (let i = 0; i < itemsWeapon.size(); i++) {

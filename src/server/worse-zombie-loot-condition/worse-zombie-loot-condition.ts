@@ -31,7 +31,7 @@
  */
 
 // PipeWrench API.
-import { ArrayList, BloodBodyPartType, BloodClothingType, Clothing, InventoryItem, IsoDeadBody, WeaponType, ZombRandBetween } from '@asledgehammer/pipewrench';
+import { ArrayList, BloodBodyPartType, BloodClothingType, Clothing, Drainable, InventoryItem, IsoDeadBody, WeaponType, ZombRandBetween } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';
@@ -72,6 +72,8 @@ Events.onZombidDead.addListener((zombie) => {
   const itemContainer = zombie.getInventory();
   const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
   const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
+  // const itemsLighter = itemContainer.getItemsFromType('Lighter');
+  // const itemsMatches = itemContainer.getItemsFromType('Matches');
 
   if (zombie.getLastHitCount() < sandboxVars.clothingHolesValueMin) {
     const remainingHits = sandboxVars.clothingHolesValueMin - zombie.getLastHitCount();
@@ -97,6 +99,18 @@ Events.onZombidDead.addListener((zombie) => {
       setCondition(item, sandboxVars.damageClothingValue);
     }
   }
+
+  // for (let i = 0; i < itemsLighter.size(); i++) {
+  //   const item: InventoryItem = itemsLighter.get(i);
+
+  //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
+  // }
+
+  // for (let i = 0; i < itemsMatches.size(); i++) {
+  //   const item: InventoryItem = itemsLighter.get(i);
+
+  //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
+  // }
 });
 
 Events.loadGridSquare.addListener((square) => {
@@ -109,14 +123,28 @@ Events.loadGridSquare.addListener((square) => {
       const itemContainer = body.getItemContainer();
       const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
       const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
+      // const itemsLighter = itemContainer.getItemsFromType('Lighter');
+      // const itemsMatches = itemContainer.getItemsFromType('Matches');
 
       for (let j = 0; j < itemsWeapon.size(); j++) {
         const item: InventoryItem = itemsWeapon.get(j);
         setCondition(item, sandboxVars.damageWeaponValue);
       }
 
-      for (let k = 0; k < itemsClothing.size(); k++) {
-        const item: Clothing = itemsClothing.get(k);
+      // for (let j = 0; j < itemsLighter.size(); j++) {
+      //   const item: InventoryItem = itemsLighter.get(j);
+
+      //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
+      // }
+
+      // for (let j = 0; j < itemsMatches.size(); j++) {
+      //   const item: InventoryItem = itemsLighter.get(j);
+
+      //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
+      // }
+
+      for (let j = 0; j < itemsClothing.size(); j++) {
+        const item: Clothing = itemsClothing.get(j);
 
         if (!item.getCanHaveHoles()) {
           setCondition(item, sandboxVars.damageClothingValue);
@@ -126,10 +154,10 @@ Events.loadGridSquare.addListener((square) => {
           const visual = new ArrayList();
           visual.add(item.getVisual());
 
-          for (let l = 0; l < coveredParts.size(); l++) {
-            const coveredPart: BloodBodyPartType = coveredParts.get(l);
+          for (let k = 0; k < coveredParts.size(); k++) {
+            const coveredPart: BloodBodyPartType = coveredParts.get(k);
 
-            for (let m = 0; m < sandboxVars.deadBodyHolesValueMin; m++) {
+            for (let l = 0; l < sandboxVars.deadBodyHolesValueMin; l++) {
               BloodClothingType.addHole(
                 coveredPart,
                 humanVisual,

@@ -44,7 +44,7 @@ function setCondition(item: InventoryItem, maxCondition: number) {
 
   if (condition > 0) {
     const newCondition = Math.floor(ZombRandBetween(0, condition * maxCondition));
-    item.setCondition(newCondition);
+    item.setCondition(newCondition, false);
   }
 }
 
@@ -140,7 +140,7 @@ Events.loadGridSquare.addListener((square) => {
 
           if (item.getHolesNumber() != 0) {
             const lostCondition = item.getCondLossPerHole();
-            item.setCondition(item.getCondition() - lostCondition);
+            item.setCondition(item.getCondition() - lostCondition, false);
           }
         }
       }

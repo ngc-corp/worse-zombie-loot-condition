@@ -31,7 +31,7 @@
  */
 
 // PipeWrench API.
-import { Clothing, InventoryItem, WeaponType, ZombRand } from '@asledgehammer/pipewrench';
+import { ArrayList, BloodBodyPartType, BloodClothingType, Clothing, InventoryItem, IsoDeadBody, WeaponType, ZombRandBetween } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';
@@ -43,7 +43,7 @@ function setCondition(item: InventoryItem, maxCondition: number) {
   const condition = item.getCondition();
 
   if (condition > 0) {
-    const newCondition = Math.floor(ZombRand(0, condition * maxCondition));
+    const newCondition = Math.floor(ZombRandBetween(0, condition * maxCondition));
     item.setCondition(newCondition);
   }
 }
@@ -95,6 +95,55 @@ Events.onZombidDead.addListener((zombie) => {
 
     if (!item.getCanHaveHoles()) {
       setCondition(item, sandboxVars.damageClothingValue);
+    }
+  }
+});
+
+Events.loadGridSquare.addListener((square) => {
+  const deadBodies = square.getDeadBodys();
+
+  for (let i = 0; i < deadBodies.size(); i++) {
+    const body: IsoDeadBody = deadBodies.get(i);
+
+    if (!body.isFakeDead()) {
+      const itemContainer = body.getItemContainer();
+      const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
+      const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
+
+      for (let j = 0; j < itemsWeapon.size(); j++) {
+        const item: InventoryItem = itemsWeapon.get(j);
+        setCondition(item, sandboxVars.damageWeaponValue);
+      }
+
+      for (let k = 0; k < itemsClothing.size(); k++) {
+        const item: Clothing = itemsClothing.get(k);
+
+        if (!item.getCanHaveHoles()) {
+          setCondition(item, sandboxVars.damageClothingValue);
+        } else {
+          const coveredParts = item.getCoveredParts();
+          const humanVisual = body.getHumanVisual();
+          const visual = new ArrayList();
+          visual.add(item.getVisual());
+
+          for (let l = 0; l < coveredParts.size(); l++) {
+            const coveredPart: BloodBodyPartType = coveredParts.get(l);
+
+            for (let m = 0; m < sandboxVars.deadBodyHolesValueMin; m++) {
+              BloodClothingType.addHole(
+                coveredPart,
+                humanVisual,
+                visual
+              );
+            }
+          }
+
+          if (item.getHolesNumber() != 0) {
+            const lostCondition = item.getCondLossPerHole();
+            item.setCondition(item.getCondition() - lostCondition);
+          }
+        }
+      }
     }
   }
 });

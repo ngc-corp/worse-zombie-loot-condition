@@ -24,7 +24,7 @@ option WorseZombieLootCondition.deadBodyHolesValueMin {
 	min = 1,
 	max = 6,
 	page = Worse Zombie Loot Condition,
-	translation = ClothHolesValueMin,
+	translation = DeadBodyHolesValueMin,
 }
 
 option WorseZombieLootCondition.damageClothingValue {

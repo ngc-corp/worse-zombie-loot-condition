@@ -31,7 +31,7 @@
  */
 
 // PipeWrench API.
-import { ArrayList, BloodBodyPartType, BloodClothingType, BodyPartType, Clothing, getSquare, InventoryItem, IsoDeadBody, WeaponType, zombie, ZombRandBetween } from '@asledgehammer/pipewrench';
+import { ArrayList, BloodBodyPartType, BloodClothingType, Clothing, getSquare, InventoryItem, IsoDeadBody, WeaponType, zombie, ZombRandBetween } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';

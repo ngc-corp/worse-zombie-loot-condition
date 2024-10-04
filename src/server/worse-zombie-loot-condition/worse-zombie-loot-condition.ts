@@ -31,20 +31,82 @@
  */
 
 // PipeWrench API.
-import { ArrayList, BloodBodyPartType, BloodClothingType, Clothing, InventoryItem, IsoDeadBody, WeaponType, ZombRandBetween } from '@asledgehammer/pipewrench';
+import { ArrayList, BloodBodyPartType, BloodClothingType, BodyPartType, Clothing, getSquare, InventoryItem, IsoDeadBody, WeaponType, zombie, ZombRandBetween } from '@asledgehammer/pipewrench';
 
 // PipeWrench Events API.
 import * as Events from '@asledgehammer/pipewrench-events';
 
+type ZombieDeath = {
+  x: number;
+  y: number;
+  z: number;
+};
+
 // @ts-ignore
-const sandboxVars = SandboxVars.WorseZombieLootCondition;
+const sandboxVars = SandboxVars.WZLC;
+const zombieDeaths: ZombieDeath[] = [];
 
-function setCondition(item: InventoryItem, maxCondition: number) {
-  const condition = item.getCondition();
+function setCondition(item: InventoryItem, targetConditionPercent: number) {
+  const maxCondition = item.getConditionMax();
+  const currentCondition = item.getCondition();
 
-  if (condition > 0) {
-    const newCondition = Math.floor(ZombRandBetween(0, condition * maxCondition));
+  if (currentCondition > 0) {
+    const newCondition = Math.floor(ZombRandBetween(0, maxCondition * 0.01 * targetConditionPercent));
     item.setCondition(newCondition, false);
+  }
+}
+
+function updateInventory(itemContainer: zombie.inventory.ItemContainer, body: IsoDeadBody | null, addHoles: boolean) {
+  const items = itemContainer.getItems();
+
+  for (let i = 0; i < items.size(); i++) {
+    const item: InventoryItem = items.get(i);
+    const category = item.getCategory();
+
+    if (category == 'Clothing' && item.getDisplayCategory() !== 'Accessory') {
+      if (addHoles) {
+        const coveredParts = (item as Clothing).getCoveredParts();
+        const humanVisual = body!.getHumanVisual();
+        const visual = new ArrayList();
+        visual.add(item.getVisual());
+
+        for (let k = 0; k < coveredParts.size(); k++) {
+          const coveredPart: BloodBodyPartType = coveredParts.get(k);
+
+          for (let l = 0; l < sandboxVars.deadBodyHolesValueMin; l++) {
+            BloodClothingType.addHole(
+              coveredPart,
+              humanVisual,
+              visual
+            );
+          }
+        }
+      }
+
+      if ((item as Clothing).getHolesNumber() != 0) {
+        const lostCondition = (item as Clothing).getCondLossPerHole();
+        item.setCondition(item.getCondition() - lostCondition, false);
+      }
+
+      continue;
+    }
+
+    if (category == 'Weapon') {
+      setCondition(item, sandboxVars.damageWeaponValue);
+      continue;
+    }
+
+    if (category == 'Drainable') {
+      // @ts-ignore
+      item.setUsedDelta(ZombRandBetween(0, sandboxVars.maxItemCapacity * 0.01));
+      continue;
+    }
+
+    if (category == 'DrainableComboItem') {
+      // @ts-ignore
+      item.setUsedDelta(ZombRandBetween(0, sandboxVars.maxItemCapacity * 0.01));
+      continue;
+    }
   }
 }
 
@@ -54,13 +116,16 @@ Events.onHitZombie.addListener((zombie, character, bodyPartType, handWeapon) => 
   }
 
   for (let i = 0; i < sandboxVars.clothingHolesValue; i++) {
-    // @ts-ignore
-    zombie.addHole(null);
-  }
+    const bloodBodyPartType = BloodBodyPartType.FromIndex(bodyPartType.index());
+    const bloodBodyPartTypeRandom = BloodBodyPartType.FromIndex(ZombRandBetween(0, BloodBodyPartType.MAX.index()));
 
-  if (WeaponType.getWeaponType(character) != WeaponType.barehand) {
-    // @ts-ignore
-    zombie.addBlood(null, true, false, false);
+    zombie.addHole(bloodBodyPartType);
+    zombie.addHole(bloodBodyPartTypeRandom);
+
+    if (WeaponType.getWeaponType(handWeapon) != WeaponType.barehand) {
+      zombie.addBlood(bloodBodyPartType, true, false, false);
+      zombie.addBlood(bloodBodyPartTypeRandom, true, false, false);
+    }
   }
 });
 
@@ -69,109 +134,69 @@ Events.onZombidDead.addListener((zombie) => {
     return;
   }
 
-  const itemContainer = zombie.getInventory();
-  const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
-  const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
-  // const itemsLighter = itemContainer.getItemsFromType('Lighter');
-  // const itemsMatches = itemContainer.getItemsFromType('Matches');
-
   if (zombie.getLastHitCount() < sandboxVars.clothingHolesValueMin) {
     const remainingHits = sandboxVars.clothingHolesValueMin - zombie.getLastHitCount();
 
-    for (let i = 0; i < sandboxVars.clothingHolesValue * remainingHits; i++) {
-      // @ts-ignore
-      zombie.addHole(null);
-    }
+    if (remainingHits > 0) {
+      for (let i = 0; i < sandboxVars.clothingHolesValue * remainingHits; i++) {
+        const bloodBodyPartTypeRandom1 = BloodBodyPartType.FromIndex(ZombRandBetween(0, BloodBodyPartType.MAX.index()));
+        const bloodBodyPartTypeRandom2 = BloodBodyPartType.FromIndex(ZombRandBetween(0, BloodBodyPartType.MAX.index()));
 
-    // @ts-ignore
-    zombie.addBlood(null, true, false, false);
-  }
-
-  for (let i = 0; i < itemsWeapon.size(); i++) {
-    const item: InventoryItem = itemsWeapon.get(i);
-    setCondition(item, sandboxVars.damageWeaponValue);
-  }
-
-  for (let i = 0; i < itemsClothing.size(); i++) {
-    const item: Clothing = itemsClothing.get(i);
-
-    if (!item.getCanHaveHoles()) {
-      setCondition(item, sandboxVars.damageClothingValue);
+        zombie.addHole(bloodBodyPartTypeRandom1);
+        zombie.addHole(bloodBodyPartTypeRandom2);
+        zombie.addBlood(bloodBodyPartTypeRandom1, true, false, false);
+        zombie.addBlood(bloodBodyPartTypeRandom2, true, false, false);
+      }
     }
   }
 
-  // for (let i = 0; i < itemsLighter.size(); i++) {
-  //   const item: InventoryItem = itemsLighter.get(i);
+  zombieDeaths.push({ x: zombie.getSquare().getX(), y: zombie.getSquare().getY(), z: zombie.getSquare().getZ() });
+});
 
-  //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
-  // }
+Events.onTick.addListener(() => {
+  for (let i = 0; i < zombieDeaths.length - 1; i++) {
+    const zombieDeath = zombieDeaths[i];
+    const square = getSquare(zombieDeath.x, zombieDeath.y, zombieDeath.z);
+    const deadBodies = square.getDeadBodys();
 
-  // for (let i = 0; i < itemsMatches.size(); i++) {
-  //   const item: InventoryItem = itemsLighter.get(i);
+    for (let j = 0; j < deadBodies.size(); j++) {
+      const deadBody: IsoDeadBody = deadBodies.get(j);
+      const modData = deadBody.getModData();
 
-  //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
-  // }
+      if (modData.WZLC_processed === true) {
+        continue;
+      }
+
+      const itemContainer = deadBody.getItemContainer();
+
+      updateInventory(itemContainer, null, false);
+      // deadBody.sendObjectChange('ItemContainer');
+      modData.WZLC_processed = true;
+    }
+  }
+
+  zombieDeaths.length = 0;
 });
 
 Events.loadGridSquare.addListener((square) => {
   const deadBodies = square.getDeadBodys();
 
   for (let i = 0; i < deadBodies.size(); i++) {
-    const body: IsoDeadBody = deadBodies.get(i);
+    const deadBody: IsoDeadBody = deadBodies.get(i);
+    const modData = deadBody.getModData();
 
-    if (!body.isFakeDead()) {
-      const itemContainer = body.getItemContainer();
-      const itemsWeapon = itemContainer.getItemsFromCategory('Weapon');
-      const itemsClothing = itemContainer.getItemsFromCategory('Clothing');
-      // const itemsLighter = itemContainer.getItemsFromType('Lighter');
-      // const itemsMatches = itemContainer.getItemsFromType('Matches');
-
-      for (let j = 0; j < itemsWeapon.size(); j++) {
-        const item: InventoryItem = itemsWeapon.get(j);
-        setCondition(item, sandboxVars.damageWeaponValue);
-      }
-
-      // for (let j = 0; j < itemsLighter.size(); j++) {
-      //   const item: InventoryItem = itemsLighter.get(j);
-
-      //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
-      // }
-
-      // for (let j = 0; j < itemsMatches.size(); j++) {
-      //   const item: InventoryItem = itemsLighter.get(j);
-
-      //   item.setUses(Math.floor(item.getUses() * sandboxVars.maxItemCapacity));
-      // }
-
-      for (let j = 0; j < itemsClothing.size(); j++) {
-        const item: Clothing = itemsClothing.get(j);
-
-        if (!item.getCanHaveHoles()) {
-          setCondition(item, sandboxVars.damageClothingValue);
-        } else {
-          const coveredParts = item.getCoveredParts();
-          const humanVisual = body.getHumanVisual();
-          const visual = new ArrayList();
-          visual.add(item.getVisual());
-
-          for (let k = 0; k < coveredParts.size(); k++) {
-            const coveredPart: BloodBodyPartType = coveredParts.get(k);
-
-            for (let l = 0; l < sandboxVars.deadBodyHolesValueMin; l++) {
-              BloodClothingType.addHole(
-                coveredPart,
-                humanVisual,
-                visual
-              );
-            }
-          }
-
-          if (item.getHolesNumber() != 0) {
-            const lostCondition = item.getCondLossPerHole();
-            item.setCondition(item.getCondition() - lostCondition, false);
-          }
-        }
-      }
+    if (modData.WZLC_processed === true) {
+      continue;
     }
+
+    if (deadBody.isFakeDead()) {
+      continue;
+    }
+
+    const itemContainer = deadBody.getItemContainer();
+
+    updateInventory(itemContainer, deadBody, true);
+    // deadBody.sendObjectChange('ItemContainer');
+    modData.WZLC_processed = true;
   }
 });

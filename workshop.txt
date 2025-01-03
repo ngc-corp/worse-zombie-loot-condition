@@ -1,0 +1,12 @@
+version=1
+id=2867084324
+title=Worse Zombie Loot Condition
+description=Multiple holes are added to clothing when a zombie is hit, and additional damage is done to other items when a zombie dies.
+description=This tries to make clothing stores and patching up holes (tailoring) more useful and rewarding since it is hard to get some of those brand new boots otherwise.
+description=
+description=If you have any ideas or issues, please don't hesitate to use the comments.
+description=
+description=---- Build 42 support
+description=There was not much time to test the first version for B42. If you experience any bugs use the comments!
+tags=Build 41;Build 42;Balance;Hardmode;Realistic
+visibility=public

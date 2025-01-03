@@ -1,0 +1,15 @@
+Sandbox_EN = {
+    Sandbox_Worse Zombie Loot Condition = "Worse Zombie Loot Condition"
+    Sandbox_ClothingHolesValue = "Clothing Holes"
+    Sandbox_ClothingHolesValue_tooltip = "How many holes are added to zombie clothing when a zombie is hit"
+    Sandbox_ClothingHolesValueMin = "Minimum Clothing Holes"
+    Sandbox_ClothingHolesValueMin_tooltip = "When the hit count is lower than this number, if a zombie dies, the zombie will receive additional hits (Clothing Holes * Remaining hits) until this number is reached. This makes sure that a one-hit kill also significantly reduces the overall clothing condition"
+    Sandbox_DeadBodyHolesValueMin = "Minimum Holes per cloth (dead body)"
+    Sandbox_DeadBodyHolesValueMin_tooltip = "How many holes (max holes defined by item) are added for each piece of clothing on a dead body. This won't affect fake dead bodies"
+    Sandbox_MaxItemCapacity = "The maximum capacity of a drainable item"
+    Sandbox_MaxItemCapacity_tooltip = "0.5 means a drainable item's max capacity is 50%"
+    Sandbox_DamageClothingValue = "Cloth maximum condition"
+    Sandbox_DamageClothingValue_tooltip = "A cloth's maximum condition. 0.5 means there is a chance for a cloth item to have 50% max condition or less. (This option only affects clothing items that do not support holes)"
+    Sandbox_DamageWeaponValue = "Weapon maximum condition"
+    Sandbox_DamageWeaponValue_tooltip = "A weapon's maximum condition. 0.5 means there is a change for a weapon item to have 50% condition max or less."
+}

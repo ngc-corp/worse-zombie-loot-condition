@@ -1,10 +1,7 @@
 
-# Project Zomboid Mod
+# Worse Zombie Loot Condition - Project Zomboid Mod
 
-Adds muliple holes to clothing when a zombie is hit and adds damage to attached weapons when a zombie dies
+Multiple holes are added to clothing when a zombie is hit, and additional damage is done to other items when a zombie dies.
+This tries to make clothing stores and patching up holes (tailoring) more useful and rewarding since it is hard to get some of those brand new boots otherwise.
 
-## Commands
-
-- `npm run clean`: Cleans the `media/lua` output Lua code.
-- `npm run compile`: Compiles `.ts` files from the `./src/` folder to `.lua` files in the output folder.
-- `npm run dev`: Runs a watcher, watching `.lua`, `.ts`, and `.d.ts` files.
+https://steamcommunity.com/sharedfiles/filedetails/?id=2867084324

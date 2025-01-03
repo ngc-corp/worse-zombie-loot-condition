@@ -1,0 +1,7 @@
+Sandbox_EN = {
+  Sandbox_Worse Zombie Loot Condition = "Worse Zombie Loot Condition"
+  Sandbox_ClothingHolesValue = "Clothing Holes"
+  Sandbox_ClothingHolesValue_tooltip = "How many holes are added to zombie clothing when a zombie is hit"
+  Sandbox_OverallCondition = "Weapon maximum condition"
+  Sandbox_OverallCondition_tooltip = "A weapon's maximum condition. 50 means there is a change for a item to have 50% condition max or less."
+}

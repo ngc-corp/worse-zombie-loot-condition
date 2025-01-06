@@ -7,32 +7,51 @@ local function setCondition(item, maxPercent)
 end
 
 ---@param itemContainer ItemContainer
-local function updateInventory(itemContainer)
+local function updateInventory(itemContainer, event)
   local items = itemContainer:getItems()
   do
     local i = 0
     while i < items:size() do
-      ---@type Clothing
+      ---@type InventoryItem
       local item = items:get(i)
       local category = item:getCategory()
-      if category == "Clothing" and not item:isCosmetic() then
-        if item:getCanHaveHoles() then
-          item:addRandomHole()
+      if category == "InventoryContainer" then
+        ---@type InventoryContainer
+        local _item = item
+        updateInventory(_item:getItemContainer(), event)
+      end
+      if category == "Clothing" then
+        if event == "OnZombieDead" and not sandboxVars.onZombieDeadClothingUpdate then
+          --@skip item
         else
-          setCondition(item, sandboxVars.overallCondition)
+          ---@type Clothing
+          local _item = item
+          if not _item:isCosmetic() and not _item:getDisplayCategory() == "Accessory" then
+            if _item:getCanHaveHoles() then
+              local j = 0
+              while j < sandboxVars.clothingHolesOnZombieDead do
+                _item:addRandomHole()
+                j = j + 1
+              end
+            else
+              setCondition(_item, sandboxVars.overallCondition)
+            end
+          end
         end
       end
-      if category == "Weapon" then
-        print("Weapon")
-        setCondition(item, sandboxVars.overallCondition)
+      if category == "Weapon" or category == "HandWeapon" then
+        if sandboxVars.shouldDamageWeapon then
+          ---@type HandWeapon
+          local _item = item
+          setCondition(_item, sandboxVars.overallCondition)
+        end
       end
-      if category == "Drainable" then
-        print("Drainable")
-        item:setCurrentUses(ZombRandBetween(0, item:getCurrentUses()))
-      end
-      if category == "DrainableComboItem" then
-        print("DrainableComboItem")
-        item:setCurrentUses(ZombRandBetween(0, item:getCurrentUses()))
+      if category == "Drainable" or category == "DrainableComboItem" then
+        if sandboxVars.shouldReduceDrainable then
+          ---@type DrainableComboItem
+          local _item = item
+          _item:setCurrentUses(ZombRandBetween(0, _item:getCurrentUses()))
+        end
       end
       i = i + 1
     end
@@ -41,15 +60,21 @@ end
 
 ---@param zombie IsoZombie
 function OnZombieDead(zombie)
+  if (zombie:isReanimatedPlayer() and not SandboxVars.shouldDamageReanimatedPlayer) then
+    do return end
+  end
   local itemContainer = zombie:getInventory()
-  updateInventory(itemContainer)
+  updateInventory(itemContainer, "OnZombieDead")
 end
 
 ---@param zombie IsoZombie
 function OnHitZombie(zombie)
+  if (zombie:isReanimatedPlayer() and not SandboxVars.shouldDamageReanimatedPlayer) then
+    do return end
+  end
+  zombie:addRandomVisualDamages()
   local i = 0
   while i < sandboxVars.clothingHolesValue do
-    zombie:addRandomVisualDamages()
     local bloodBodyPartTypeRandom = BloodBodyPartType.FromIndex(ZombRandBetween(0, BloodBodyPartType.MAX:index()))
     zombie:addHole(bloodBodyPartTypeRandom)
     zombie:addLotsOfDirt(bloodBodyPartTypeRandom, nil, true)
@@ -64,13 +89,17 @@ function LoadGridsquare(gridSquare)
     local i = 0
     while i < deadBodies:size() do
       local deadBody = deadBodies:get(i)
-      ---@type ModData
-      local modData = deadBody:getModData()
-      if not modData.WZLC_processed and not deadBody:isFakeDead() then
-        ---@type ItemContainer
-        local itemContainer = deadBody:getItemContainer()
-        updateInventory(itemContainer)
-        modData.WZLC_processed = true
+      if deadBody:isFakeDead() then
+        --@skip this body
+      else
+        ---@type ModData
+        local modData = deadBody:getModData()
+        if not modData.WZLC_processed then
+          ---@type ItemContainer
+          local itemContainer = deadBody:getItemContainer()
+          updateInventory(itemContainer, "LoadGridsquare")
+          modData.WZLC_processed = true
+        end
       end
       i = i + 1
     end
